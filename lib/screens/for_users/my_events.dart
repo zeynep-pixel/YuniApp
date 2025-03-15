@@ -71,7 +71,7 @@ print("Event Data: ${eventDoc.data()}");
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : myEvents.isEmpty
-              ? const Center(child: Text("Henüz bir etkinliğe başvurmadınız."))
+              ? const Center(child: Text("Henüz etkinliğe başvurmadınız."))
               :  Padding(
             padding: const EdgeInsets.only(top: 20), // Üstten boşluk ekledik
             child: ListView.builder(
