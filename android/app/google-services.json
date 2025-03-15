@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "625397493929",
+    "project_id": "yuapp-a8cec",
+    "storage_bucket": "yuapp-a8cec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:625397493929:android:9839d1002cff132e7179b8",
+        "android_client_info": {
+          "package_name": "com.example.yu_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZdKEpjpkWki2wsfm4IikF7vxXGOyyADs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
