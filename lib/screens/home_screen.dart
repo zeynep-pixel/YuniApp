@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:yu_app/screens/auth_selection_screen.dart';
 import 'package:yu_app/screens/events.dart';
 import 'package:yu_app/screens/for_users/my_events.dart';
+import 'package:yu_app/screens/for_users/profile.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -34,7 +35,7 @@ class HomeScreen extends StatelessWidget {
             if (user == null)
               ListTile(
                 leading: const Icon(Icons.login, color: Color.fromARGB(255, 251, 250, 252)),
-                title: const Text("Giriş Yap", style: TextStyle(color: Colors.white),),
+                title:  Text("Giriş Yap", style: TextStyle(color: Colors.white, fontSize: 18)),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -63,16 +64,31 @@ class HomeScreen extends StatelessWidget {
                   final isClub = userData?['isClub'] ?? false;
 
                   if (!isClub) {
-                    return ListTile(
-                      leading: const Icon(Icons.event, color: Colors.deepPurple),
-                      title: const Text("Etkinliklerim"),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const MyEventsScreen()),
-                        );
-                      },
-                    );
+                    return Column(
+  children: [
+    
+    ListTile(
+      leading: const Icon(Icons.person, color: Colors.white),
+      title: const Text("Profil",style: TextStyle(color: Colors.white, fontSize: 18)),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfileScreen()),
+        );
+      },
+    ),
+    ListTile(
+      leading: const Icon(Icons.event, color: Colors.white),
+      title: const Text("Etkinliklerim", style: TextStyle(color: Colors.white, fontSize: 18)),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MyEventsScreen()),
+        );
+      },
+    ),
+  ],
+);
                   }
                   return const SizedBox();
                 },
@@ -80,8 +96,8 @@ class HomeScreen extends StatelessWidget {
 
               // Çıkış Yap seçeneği (Giriş yapan herkes için)
               ListTile(
-                leading: const Icon(Icons.logout, color: Color.fromARGB(255, 229, 133, 126)),
-                title: const Text("Çıkış Yap"),
+                leading: const Icon(Icons.logout, color: Colors.white),
+                title: const Text("Çıkış Yap", style: TextStyle(color: Colors.white, fontSize: 18),),
                 onTap: () async {
                   await FirebaseAuth.instance.signOut();
                   Navigator.pushAndRemoveUntil(

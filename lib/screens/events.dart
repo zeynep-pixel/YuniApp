@@ -12,7 +12,7 @@ class Events extends StatefulWidget {
 
 class _EventsState extends State<Events> {
   List<Event> data = [];
-  bool isLoading = true; // Başlangıçta yükleme aktif
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -22,10 +22,8 @@ class _EventsState extends State<Events> {
 
   Future<void> loadItems() async {
     try {
-      CollectionReference eventsCollection =
-          FirebaseFirestore.instance.collection('all-events');
-
-      QuerySnapshot snapshot = await eventsCollection.get();
+      QuerySnapshot snapshot =
+          await FirebaseFirestore.instance.collection('all-events').get();
 
       if (snapshot.docs.isNotEmpty) {
         List<Event> loadedItems = snapshot.docs.map((doc) {
@@ -38,23 +36,26 @@ class _EventsState extends State<Events> {
   details: eventData['details'] ?? '',
   img: eventData['img'] ?? '',
   place: eventData['place'] ?? '',
-  isActive: eventData['isActive'] ?? false, // ✅ `String` yerine `bool` olarak al
+  isActive: eventData['isActive'] ?? false,
+  startDate: (eventData['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+  finishDate: (eventData['finishDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
 );
+
         }).toList();
 
         setState(() {
-          data = loadedItems.where((item) => item.isActive == true).toList();
-          isLoading = false; // Veri alındı, yükleme tamamlandı
+          data = loadedItems.where((item) => item.isActive).toList();
+          isLoading = false;
         });
       } else {
         setState(() {
           data = [];
-          isLoading = false; // Veri bulunamadı ama yükleme tamamlandı
+          isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
-        data = []; // Hata olursa veri listesi boş olmalı
+        data = [];
         isLoading = false;
       });
 
@@ -68,22 +69,27 @@ class _EventsState extends State<Events> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: isLoading
-          ? const Center(
-              child: CircularProgressIndicator(), // Yükleme göstergesi
-            )
+          ? const Center(child: CircularProgressIndicator())
           : data.isNotEmpty
-              ? GridView.builder(
-                  padding: const EdgeInsets.all(5),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 1,
-                    childAspectRatio: 1.3,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 5,
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      int crossAxisCount = constraints.maxWidth > 600 ? 2 : 1;
+                      return GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          childAspectRatio: 1.3,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                        ),
+                        itemCount: data.length,
+                        itemBuilder: (context, index) {
+                          return EventItem(event: data[index]);
+                        },
+                      );
+                    },
                   ),
-                  itemCount: data.length,
-                  itemBuilder: (context, index) {
-                    return EventItem(event: data[index]);
-                  },
                 )
               : const Center(
                   child: Text(
@@ -94,4 +100,3 @@ class _EventsState extends State<Events> {
     );
   }
 }
-

@@ -12,7 +12,7 @@ class ClubEvents extends StatefulWidget {
 }
 
 class _ClubEventsState extends State<ClubEvents> {
-  List<Event> data = [];
+  List<Event> eventData = [];
 
   @override
   void initState() {
@@ -32,22 +32,25 @@ class _ClubEventsState extends State<ClubEvents> {
     // Eğer veri varsa, Event modeline çevir
     if (snapshot.docs.isNotEmpty) {
       List<Event> loadedItems = snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
+        final eventData = doc.data() as Map<String, dynamic>;
 
         return Event(
-          firestoreId: doc.id,
-          clup: data['clup'] ?? '',
-          title: data['title'] ?? '',
-          details: data['details'] ?? '',
-          img: data['img'] ?? '',
-          place: data['place'] ?? '',
-          isActive: data['isActive'] ?? false,
-        );
+  firestoreId: doc.id,
+  clup: eventData['clup'] ?? '',
+  title: eventData['title'] ?? '',
+  details: eventData['details'] ?? '',
+  img: eventData['img'] ?? '',
+  place: eventData['place'] ?? '',
+  isActive: eventData['isActive'] ?? false,
+  startDate: (eventData['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+  finishDate: (eventData['finishDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+);
+
       }).toList();
 
       // Sadece aktif etkinlikleri al
       setState(() {
-        data = loadedItems.where((item) => item.isActive == 'true').toList();
+        eventData = loadedItems.where((item) => item.isActive == 'true').toList();
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -77,7 +80,7 @@ class _ClubEventsState extends State<ClubEvents> {
       body: Column(
         children: [
           Expanded(
-            child: data.isNotEmpty
+            child: eventData.isNotEmpty
                 ? GridView.builder(
                     padding: const EdgeInsets.all(12),
                     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -86,9 +89,9 @@ class _ClubEventsState extends State<ClubEvents> {
                       crossAxisSpacing: 20,
                       mainAxisSpacing: 20,
                     ),
-                    itemCount: data.length,
+                    itemCount: eventData.length,
                     itemBuilder: (context, index) {
-                      return EventItem(event: data[index]);
+                      return EventItem(event: eventData[index]);
                     },
                   )
                 : const Center(
