@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:yu_app/screens/auth_selection_screen.dart';
 import 'package:yu_app/screens/events.dart';
+import 'package:yu_app/screens/for_clubs/add_screen.dart';
+import 'package:yu_app/screens/for_clubs/club_profiles.dart';
 import 'package:yu_app/screens/for_users/my_events.dart';
 import 'package:yu_app/screens/for_users/profile.dart';
 
@@ -44,70 +46,108 @@ class HomeScreen extends StatelessWidget {
                 },
               )
             else ...[
-              // Kullanıcı giriş yapmışsa ancak kulüp değilse "Etkinliklerim" seçeneği
-              FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance.collection('users').doc(user.uid).get(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(10.0),
-                        child: CircularProgressIndicator(), // Yükleme göstergesi eklendi
-                      ),
+  FutureBuilder<DocumentSnapshot>(
+    future: FirebaseFirestore.instance.collection('users').doc(user.uid).get(),
+    builder: (context, userSnapshot) {
+      if (userSnapshot.connectionState == ConnectionState.waiting) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(10.0),
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+
+      // Eğer `users` koleksiyonunda varsa, mevcut menüyü göster
+      if (userSnapshot.hasData && userSnapshot.data!.exists) {
+        return Column(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.person, color: Colors.white),
+              title: const Text("Profil", style: TextStyle(color: Colors.white, fontSize: 18)),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.event, color: Colors.white),
+              title: const Text("Etkinliklerim", style: TextStyle(color: Colors.white, fontSize: 18)),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyEventsScreen()),
+                );
+              },
+            ),
+          ],
+        );
+      }
+
+      // Eğer `users` koleksiyonunda yoksa, `clup` koleksiyonunu kontrol et
+      return FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance.collection('clups').doc(user.uid).get(),
+        builder: (context, clubSnapshot) {
+          if (clubSnapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(10.0),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+
+          if (clubSnapshot.hasData && clubSnapshot.data!.exists) {
+            return Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.person, color: Colors.white),
+                  title: const Text("Profil", style: TextStyle(color: Colors.white, fontSize: 18)),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ClubProfileScreen()),
                     );
-                  }
-                  if (!snapshot.hasData || snapshot.data == null) {
-                    return const SizedBox();
-                  }
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.event, color: Colors.white),
+                  title: const Text("Etkinlik Ekle", style: TextStyle(color: Colors.white, fontSize: 18)),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const AddScreen()),
+                    );
+                  },
+                ),
+              ],
+            );
+          }
 
-                  final userData = snapshot.data!.data() as Map<String, dynamic>?;
-                  final isClub = userData?['isClub'] ?? false;
+          
+          return const SizedBox();
+        },
+      );
+    },
+  ),
 
-                  if (!isClub) {
-                    return Column(
-  children: [
-    
-    ListTile(
-      leading: const Icon(Icons.person, color: Colors.white),
-      title: const Text("Profil",style: TextStyle(color: Colors.white, fontSize: 18)),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ProfileScreen()),
-        );
-      },
-    ),
-    ListTile(
-      leading: const Icon(Icons.event, color: Colors.white),
-      title: const Text("Etkinliklerim", style: TextStyle(color: Colors.white, fontSize: 18)),
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const MyEventsScreen()),
-        );
-      },
-    ),
-  ],
-);
-                  }
-                  return const SizedBox();
-                },
-              ),
+  // Çıkış Yap seçeneği (Giriş yapan herkes için)
+  ListTile(
+    leading: const Icon(Icons.logout, color: Colors.white),
+    title: const Text("Çıkış Yap", style: TextStyle(color: Colors.white, fontSize: 18)),
+    onTap: () async {
+      await FirebaseAuth.instance.signOut();
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        (route) => false,
+      );
+    },
+  ),
+],
 
-              // Çıkış Yap seçeneği (Giriş yapan herkes için)
-              ListTile(
-                leading: const Icon(Icons.logout, color: Colors.white),
-                title: const Text("Çıkış Yap", style: TextStyle(color: Colors.white, fontSize: 18),),
-                onTap: () async {
-                  await FirebaseAuth.instance.signOut();
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                    (route) => false,
-                  );
-                },
-              ),
-            ],
           ],
         ),
       ),

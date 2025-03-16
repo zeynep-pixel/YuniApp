@@ -32,20 +32,15 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
       DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
 
       if (userDoc.exists) {
-        bool isUser = userDoc['user'] ?? false;
+        
 
-        if (isUser) {
+        
           // Kulüp giriş yapabilir
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const MyApp()),
           );
-        } else {
-          // Yetkisiz giriş
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Yetkisiz giriş: Bu hesap kullanıcı olarak kayıtlı değil!')),
-          );
-        }
+       
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Kullanıcı bulunamadı.')),
@@ -89,6 +84,7 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                   floatingLabelBehavior: FloatingLabelBehavior.never,
                 ),
               ),
               const SizedBox(height: 20),
@@ -99,6 +95,7 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                   floatingLabelBehavior: FloatingLabelBehavior.never,
                 ),
                 obscureText: true,
               ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:yu_app/screens/events.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:yu_app/screens/events.dart';
 
 class AddScreen extends StatefulWidget {
   const AddScreen({super.key});
@@ -12,50 +13,61 @@ class AddScreen extends StatefulWidget {
 class _AddScreenState extends State<AddScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  var enteredClup = '';
+  String? userClub; // Kullanıcının kulübü (Firestore'dan alınacak)
   var enteredTitle = '';
   var enteredDetails = '';
   var enteredPlace = '';
   DateTime selectedStartDate = DateTime.now();
   DateTime selectedFinishDate = DateTime.now();
 
+  @override
+  void initState() {
+    super.initState();
+    fetchUserClub();
+  }
+
+  Future<void> fetchUserClub() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userDoc.exists) {
+        setState(() {
+          userClub = userDoc.data()?['clubName'] ?? "Bilinmiyor";
+        });
+      }
+    } catch (e) {
+      print("Kullanıcı kulübü alınırken hata oluştu: $e");
+    }
+  }
+
   void saveItem() async {
-    if (_formKey.currentState!.validate()) {
+    if (_formKey.currentState!.validate() && userClub != null) {
       _formKey.currentState!.save();
 
       try {
-        // Firestore referansını al
-        CollectionReference eventsRef =
-            FirebaseFirestore.instance.collection('all-events');
-
-        // Yeni belge ekle
-        await eventsRef.add({
-          'clup': enteredClup,
+        await FirebaseFirestore.instance.collection('all-events').add({
+          'clup': userClub,
           'title': enteredTitle,
           'details': enteredDetails,
           'place': enteredPlace,
           'startdate': selectedStartDate,
           'finishdate': selectedFinishDate,
-          'isActive': false, // Boolean değer
+          'isActive': false,
         });
 
-        // Kullanıcıya başarı mesajı göster
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Etkinlik başarıyla kaydedildi!')),
         );
 
-        _formKey.currentState!.reset();
-
-        setState(() {
-          enteredClup = '';
-          enteredTitle = '';
-          enteredDetails = '';
-          enteredPlace = '';
-          selectedStartDate = DateTime.now();
-          selectedFinishDate = DateTime.now();
-        });
-
-        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => Events()));
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (ctx) => Events()),
+        );
       } catch (error) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Hata oluştu: $error')),
@@ -67,9 +79,7 @@ class _AddScreenState extends State<AddScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Yeni Etkinlik Ekle'),
-      ),
+      appBar: AppBar(title: const Text('Yeni Etkinlik Ekle')),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: SingleChildScrollView(
@@ -77,34 +87,17 @@ class _AddScreenState extends State<AddScreen> {
             key: _formKey,
             child: Column(
               children: [
-                TextFormField(
-                  maxLength: 100,
-                  decoration: const InputDecoration(labelText: 'Klüp Adı'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Klüp adı boş olamaz.';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    enteredClup = value!;
-                  },
-                ),
+                
                 const SizedBox(height: 10),
+
                 TextFormField(
                   maxLength: 200,
                   decoration: const InputDecoration(labelText: 'Etkinlik Adı'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Etkinlik adı boş olamaz.';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    enteredTitle = value!;
-                  },
+                  validator: (value) => value!.isEmpty ? 'Boş bırakılamaz.' : null,
+                  onSaved: (value) => enteredTitle = value!,
                 ),
                 const SizedBox(height: 10),
+
                 Row(
                   children: [
                     Expanded(
@@ -122,11 +115,8 @@ class _AddScreenState extends State<AddScreen> {
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2030),
                           );
-
                           if (pickedDate != null) {
-                            setState(() {
-                              selectedStartDate = pickedDate;
-                            });
+                            setState(() => selectedStartDate = pickedDate);
                           }
                         },
                       ),
@@ -147,11 +137,8 @@ class _AddScreenState extends State<AddScreen> {
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2030),
                           );
-
                           if (pickedDate != null) {
-                            setState(() {
-                              selectedFinishDate = pickedDate;
-                            });
+                            setState(() => selectedFinishDate = pickedDate);
                           }
                         },
                       ),
@@ -159,33 +146,22 @@ class _AddScreenState extends State<AddScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
+
                 TextFormField(
                   maxLength: 500,
                   decoration: const InputDecoration(labelText: 'Açıklama'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Açıklama boş olamaz.';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    enteredDetails = value!;
-                  },
+                  validator: (value) => value!.isEmpty ? 'Boş bırakılamaz.' : null,
+                  onSaved: (value) => enteredDetails = value!,
                 ),
+
                 TextFormField(
                   maxLength: 100,
                   decoration: const InputDecoration(labelText: 'Mekan'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Mekan adı boş olamaz.';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    enteredPlace = value!;
-                  },
+                  validator: (value) => value!.isEmpty ? 'Boş bırakılamaz.' : null,
+                  onSaved: (value) => enteredPlace = value!,
                 ),
                 const SizedBox(height: 10),
+
                 ElevatedButton(
                   onPressed: saveItem,
                   child: const Text('Kaydet'),

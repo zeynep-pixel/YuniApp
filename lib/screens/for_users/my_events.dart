@@ -47,7 +47,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
 
         if (eventDoc.exists) {
           try {
-            Event event = Event.fromFirestore(eventDoc);
+            Event event = await Event.fromFirestore(eventDoc);
             events.add(event);
             print("Yüklendi: ${event.title}");
           } catch (e) {

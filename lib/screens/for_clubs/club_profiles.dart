@@ -4,68 +4,64 @@ import 'package:flutter/material.dart';
 import 'package:yu_app/models/event.dart';
 import 'package:yu_app/widgets/only_name_event_item.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ClubProfileScreen extends StatefulWidget {
+  const ClubProfileScreen({super.key});
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  _ClubProfileScreenState createState() => _ClubProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ClubProfileScreenState extends State<ClubProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  String name = "";
-  String surname = "";
-  String profileImage = "";
-  List<Event> upcomingEvents = [];
-  List<Event> pastEvents = [];
+  String clubName = "";
+  String img = "";
+  List<Event> publishedEvents = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchUserData();
+    fetchClubData();
   }
 
-  Future<void> fetchUserData() async {
+  Future<void> fetchClubData() async {
     final user = _auth.currentUser;
     if (user == null) return;
 
     try {
-      final userDoc = await _firestore.collection("users").doc(user.uid).get();
-      if (!userDoc.exists) return;
+      final clubDoc = await _firestore.collection("clups").doc(user.uid).get();
+      if (!clubDoc.exists) return;
 
       setState(() {
-        name = userDoc["name"] ?? "";
-        surname = userDoc["surname"] ?? "";
-        profileImage = userDoc["profileImage"] ?? "";
+        clubName = clubDoc["name"] ?? "";
+        img = clubDoc["img"] ?? "https://www.google.com/imgres?q=%20profile&imgurl=https%3A%2F%2Fimg.freepik.com%2Fpremium-vector%2Favatar-profile-icon-flat-style-female-user-profile-vector-illustration-isolated-background-women-profile-sign-business-concept_157943-38866.jpg&imgrefurl=https%3A%2F%2Fwww.freepik.com%2Ffree-photos-vectors%2Fprofile&docid=WIYPytbMl_8XfM&tbnid=HLImyoW3EMuuBM&vet=12ahUKEwiH4-2VnI-MAxWBBNsEHSliClsQM3oFCIABEAA..i&w=626&h=626&hcb=2&ved=2ahUKEwiH4-2VnI-MAxWBBNsEHSliClsQM3oFCIABEAA";
+        print(img);
+
       });
 
-      List<String> appliedEventIds = List<String>.from(userDoc.data()?['appliedEvents'] ?? []);
+      List<String> publishedEventIds = List<String>.from(clubDoc.data()?['publishedEvents'] ?? []);
 
-      if (appliedEventIds.isEmpty) {
+      if (publishedEventIds.isEmpty) {
         setState(() => isLoading = false);
         return;
       }
 
       List<Event> events = [];
-      for (String eventId in appliedEventIds) {
+      for (String eventId in publishedEventIds) {
         final eventDoc = await _firestore.collection('all-events').doc(eventId).get();
         if (eventDoc.exists) {
           events.add(await Event.fromFirestore(eventDoc));
         }
       }
 
-      DateTime now = DateTime.now().toUtc(); 
-
-upcomingEvents = events.where((e) => e.startDate.isAfter(now)).toList();
-pastEvents = events.where((e) => e.startDate.isBefore(now)).toList();
-
-
-      setState(() => isLoading = false);
+      setState(() {
+        publishedEvents = events;
+        isLoading = false;
+      });
     } catch (e) {
-      debugPrint("Profil verileri getirilirken hata oluştu: $e");
+      debugPrint("Kulüp profili verileri getirilirken hata oluştu: $e");
       setState(() => isLoading = false);
     }
   }
@@ -73,7 +69,7 @@ pastEvents = events.where((e) => e.startDate.isBefore(now)).toList();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Profil")),
+      appBar: AppBar(title: const Text("Kulüp Profili")),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -81,8 +77,7 @@ pastEvents = events.where((e) => e.startDate.isBefore(now)).toList();
                 children: [
                   _buildProfileHeader(),
                   const SizedBox(height: 20),
-                  _buildEventSection("Başvurduğum Etkinlikler", upcomingEvents),
-                  _buildEventSection("Katıldığım Etkinlikler", pastEvents),
+                  _buildEventSection("Yayınlanan Etkinlikler", publishedEvents),
                 ],
               ),
             ),
@@ -101,13 +96,11 @@ pastEvents = events.where((e) => e.startDate.isBefore(now)).toList();
         children: [
           CircleAvatar(
             radius: 50,
-            backgroundImage: profileImage.isNotEmpty
-                ? NetworkImage(profileImage)
-                : const AssetImage("assets/default_profile.png") as ImageProvider,
+            backgroundImage:  NetworkImage(img), // Kulüp simgesi
           ),
           const SizedBox(height: 10),
           Text(
-            "$name $surname",
+            clubName,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ],

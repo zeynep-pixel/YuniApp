@@ -28,23 +28,17 @@ class _ClubLoginScreenState extends State<ClubLoginScreen> {
       String uid = userCredential.user!.uid;
 
       // Firestore'dan kullanıcı verisini al
-      DocumentSnapshot userDoc = await _firestore.collection('users').doc(uid).get();
+      DocumentSnapshot userDoc = await _firestore.collection('clups').doc(uid).get();
 
       if (userDoc.exists) {
-        bool isClub = userDoc['club'] ?? false;
-
-        if (isClub) {
+       
+        
           // Kulüp giriş yapabilir
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => const MyApp()),
           );
-        } else {
-          // Yetkisiz giriş
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Yetkisiz giriş: Bu hesap kulüp olarak kayıtlı değil!')),
-          );
-        }
+       
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Kullanıcı bulunamadı.')),

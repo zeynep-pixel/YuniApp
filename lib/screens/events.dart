@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:yu_app/models/event.dart';
+import 'package:yu_app/screens/event_details.dart';
 import 'package:yu_app/widgets/event_item.dart';
 
 class Events extends StatefulWidget {
@@ -11,7 +13,9 @@ class Events extends StatefulWidget {
 }
 
 class _EventsState extends State<Events> {
-  List<Event> data = [];
+  List<Event> pastEvents = [];
+  List<Event> latesEvents = []; // Geçmiş etkinlikler (slayt için)
+  List<Event> data = []; // Tüm etkinlikler (normal liste)
   bool isLoading = true;
 
   @override
@@ -21,82 +25,278 @@ class _EventsState extends State<Events> {
   }
 
   Future<void> loadItems() async {
-    try {
-      QuerySnapshot snapshot =
-          await FirebaseFirestore.instance.collection('all-events').get();
+  try {
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('all-events').get();
 
-      if (snapshot.docs.isNotEmpty) {
-        List<Event> loadedItems = snapshot.docs.map((doc) {
-          final eventData = doc.data() as Map<String, dynamic>;
+    if (snapshot.docs.isNotEmpty) {
+      List<Event> loadedItems = await Future.wait(snapshot.docs.map((doc) async {
+        final eventData = doc.data() as Map<String, dynamic>? ?? {};
 
-          return Event(
-  firestoreId: doc.id,
-  clup: eventData['clup'] ?? '',
-  title: eventData['title'] ?? '',
-  details: eventData['details'] ?? '',
-  img: eventData['img'] ?? '',
-  place: eventData['place'] ?? '',
-  isActive: eventData['isActive'] ?? false,
-  startDate: (eventData['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-  finishDate: (eventData['finishDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-);
+        // Kulüp adını çek
+        String clubName = "Bilinmeyen Kulüp";
+        if (eventData['clup'] != null && eventData['clup'].toString().isNotEmpty) {
+          final clubDoc = await FirebaseFirestore.instance.collection('clups').doc(eventData['clup']).get();
+          if (clubDoc.exists) {
+            clubName = clubDoc.data()?['name'] ?? clubName;
+          }
+        }
 
-        }).toList();
+        return Event(
+          firestoreId: doc.id,
+          clup: clubName,
+          title: eventData['title'] ?? '',
+          details: eventData['details'] ?? '',
+          img: eventData['img'] ?? '',
+          place: eventData['place'] ?? '',
+          isActive: eventData['isActive'] ?? false,
+          startDate: eventData['startdate'] is Timestamp
+              ? (eventData['startdate'] as Timestamp).toDate().toLocal()
+              : DateTime.now(),
+          finishDate: eventData['finishdate'] is Timestamp
+              ? (eventData['finishdate'] as Timestamp).toDate().toLocal()
+              : DateTime.now(),
+        );
+      }).toList());
 
-        setState(() {
-          data = loadedItems.where((item) => item.isActive).toList();
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          data = [];
-          isLoading = false;
-        });
-      }
-    } catch (e) {
+      DateTime now = DateTime.now();
+      DateTime sevenDaysLater = now.add(const Duration(days: 7));
+
       setState(() {
+        latesEvents = loadedItems
+            .where((event) =>
+                event.startDate.isAfter(now) && event.startDate.isBefore(sevenDaysLater))
+            .toList();
+        data = loadedItems;
+        pastEvents = loadedItems.where((event) => event.startDate.isBefore(now)).toList();
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        pastEvents = [];
+        latesEvents = [];
         data = [];
         isLoading = false;
       });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Veri alınırken hata oluştu: $e')),
-      );
     }
+  } catch (e) {
+    setState(() {
+      pastEvents = [];
+      data = [];
+      isLoading = false;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Veri alınırken hata oluştu: $e')),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : data.isNotEmpty
-              ? Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      int crossAxisCount = constraints.maxWidth > 600 ? 2 : 1;
-                      return GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          childAspectRatio: 1.3,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Yakın zamandaki etkinlikler için slayt 
+                  if (pastEvents.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        children: [
+                          const Text(
+                            "Yakın Zamandaki Etkinlikler",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          CarouselSlider(
+                            options: CarouselOptions(
+                              height: 200,
+                              autoPlay: true,
+                              enlargeCenterPage: true,
+                              aspectRatio: 16 / 9,
+                              viewportFraction: 0.8,
+                            ),
+                            items: latesEvents.map((event) {
+                              return GestureDetector(
+                                // 👈 Tıklanabilir hale getirildi
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EventDetails(event: event),
+                                    ),
+                                  );
+                                },
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      Image.network(
+                                        event.img,
+                                        fit: BoxFit.cover,
+                                      ),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.black.withOpacity(0.6),
+                                              Colors.transparent,
+                                            ],
+                                            begin: Alignment.bottomCenter,
+                                            end: Alignment.topCenter,
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        bottom: 10,
+                                        left: 10,
+                                        child: Text(
+                                          event.title,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  // Tüm etkinlikler listesi (Mevcut çalışan kod)
+                  if (data.isNotEmpty) ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: Text(
+                        "Tüm Etkinlikler",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
-                        itemCount: data.length,
-                        itemBuilder: (context, index) {
-                          return EventItem(event: data[index]);
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          int crossAxisCount = constraints.maxWidth > 600 ? 2 : 1;
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: crossAxisCount,
+                              childAspectRatio: 1.3,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                            ),
+                            itemCount: data.length,
+                            itemBuilder: (context, index) {
+                              return EventItem(event: data[index]);
+                            },
+                          );
                         },
-                      );
-                    },
-                  ),
-                )
-              : const Center(
-                  child: Text(
-                    'Henüz etkinlik bulunmamaktadır',
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                ),
+                      ),
+                    ),
+                  ],
+
+                  // Geçmiş etkinlikler listesi (Kartlar halinde)
+                  if (pastEvents.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                        children: [
+                          const Text(
+                            "Geçmiş Etkinlikler",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: pastEvents.length,
+                            itemBuilder: (context, index) {
+                              final event = pastEvents[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EventDetails(event: event),
+                                    ),
+                                  );
+                                },
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  margin: const EdgeInsets.symmetric(vertical: 10),
+                                  elevation: 5,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Stack(
+                                      children: [
+                                        Image.network(
+                                          event.img,
+                                          fit: BoxFit.cover,
+                                          height: 150,
+                                          width: double.infinity,
+                                        ),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.black.withOpacity(0.6),
+                                                Colors.transparent,
+                                              ],
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
+                                            ),
+                                          ),
+                                        ),
+                                        Positioned(
+                                          bottom: 10,
+                                          left: 10,
+                                          child: Text(
+                                            event.title,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
     );
   }
 }

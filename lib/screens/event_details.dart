@@ -72,11 +72,42 @@ class _EventDetailsState extends ConsumerState<EventDetails> {
     }
   }
 
-  @override
-Widget build(BuildContext context) {
-  final user = FirebaseAuth.instance.currentUser;
-  final dateFormat = DateFormat('dd MMMM yyyy - HH:mm', 'tr'); // 📌 Tarihi düzgün formatlamak için
 
+  Future<bool> checkUserCollection() async {
+  final user = FirebaseAuth.instance.currentUser;
+
+  if (user == null) {
+    return false; // Kullanıcı giriş yapmamışsa false döndür
+  }
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Önce "users" koleksiyonunu kontrol et
+  DocumentSnapshot userDoc = await _firestore.collection('users').doc(user.uid).get();
+
+  if (userDoc.exists) {  
+    return true; // Kullanıcı "users" koleksiyonunda varsa true döndür
+  }
+
+  // Eğer "users" içinde yoksa "clups" koleksiyonuna bak
+  DocumentSnapshot clubDoc = await _firestore.collection('clups').doc(user.uid).get();
+
+  if (clubDoc.exists) {
+    return false; // Kullanıcı "clups" koleksiyonunda varsa true döndür
+  }
+
+  return false; // Kullanıcı hiçbir koleksiyonda yoksa false döndür
+}
+
+
+
+ @override
+Widget build(BuildContext context) {
+  final dateFormat = DateFormat('dd MMMM yyyy - HH:mm', 'tr');
+  DateTime now = DateTime.now();
+  bool isEventOver = widget.event.finishDate.isBefore(now); // Etkinlik bitmiş mi?
+  
+  
   return Scaffold(
     backgroundColor: Colors.grey[200],
     body: Stack(
@@ -113,9 +144,6 @@ Widget build(BuildContext context) {
               ),
               const SizedBox(height: 12),
 
-            
-             
-
               // 🔥 Açıklama Bölümü
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -138,54 +166,85 @@ Widget build(BuildContext context) {
 
               const SizedBox(height: 20),
 
-               Padding(
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
-                   BuildInfoCard(
-  icon: Icons.event,
-  title: "Başlangıç",
-  value: dateFormat.format(widget.event.startDate ),
-),
-BuildInfoCard(
-  icon: Icons.event_available,
-  title: "Bitiş",
-  value: dateFormat.format(widget.event.finishDate),
-),
-BuildInfoCard(
-  icon: Icons.location_on,
-  title: "Mekan" ,
-  value: widget.event.place,
-),
-BuildInfoCard(
-  icon: Icons.group,
-  title: "Kulüp" ,
-  value: widget.event.clup,
-),
+                    BuildInfoCard(
+                      icon: Icons.event,
+                      title: "Başlangıç",
+                      value: dateFormat.format(widget.event.startDate),
+                    ),
+                    BuildInfoCard(
+                      icon: Icons.event_available,
+                      title: "Bitiş",
+                      value: dateFormat.format(widget.event.finishDate),
+                    ),
+                    BuildInfoCard(
+                      icon: Icons.location_on,
+                      title: "Mekan",
+                      value: widget.event.place,
+                    ),
+                    BuildInfoCard(
+                      icon: Icons.group,
+                      title: "Kulüp",
+                      value: widget.event.clup,
+                    ),
                   ],
                 ),
               ),
 
               const SizedBox(height: 40),
 
-              // 🔥 Başvuru Butonu
-              if (user != null)
-                isApplied == null
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton.icon(
+              // 🔥 Başvuru Butonu veya Bilgilendirme Mesajı
+              FutureBuilder<bool>(
+  future: checkUserCollection(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) {
+      return const CircularProgressIndicator(); // Veri yüklenene kadar yükleme göstergesi
+    }
 
-                        onPressed: isApplied! ? null : applyToEvent,
-                        icon: const Icon(Icons.check, color: Colors.white),
-                        label: Text(
-                          isApplied! ? 'Başvuru Tamamlandı' : 'Başvur',
-                          style: const TextStyle(fontSize: 18, color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isApplied! ? Colors.grey : Colors.deepPurple,
-                          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                          
-                        ),
-                      ),
+    bool isUserValid = snapshot.data ?? false; // Kullanıcı doğrulandı mı?
+
+    return isUserValid
+        ? (isEventOver
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text(
+                    'Bu etkinlik sona erdi!',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueAccent,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              )
+            : (isApplied == null
+                ? const CircularProgressIndicator()
+                : ElevatedButton.icon(
+                    onPressed: isApplied! ? null : applyToEvent,
+                    icon: const Icon(Icons.check, color: Colors.white),
+                    label: Text(
+                      isApplied! ? 'Başvuru Tamamlandı' : 'Başvur',
+                      style: const TextStyle(fontSize: 18, color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isApplied! ? Colors.grey : Colors.deepPurple,
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                    ),
+                  )))
+        : const SizedBox(); // Kullanıcı yoksa hiçbir şey gösterme
+  },
+),
+
 
               const SizedBox(height: 40),
             ],
@@ -193,23 +252,22 @@ BuildInfoCard(
         ),
 
         // 🔥 Geri Butonu
-       Positioned(
-  top: 40,
-  left: 20,
-  child: GestureDetector(
-    onTap: () => Navigator.pop(context),
-    child: Container(
-      width: 40, // 📌 Boyutu sabitledik
-      height: 40,
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3), // 📌 Şeffaf gri arka plan
-        shape: BoxShape.circle, // 📌 Yuvarlak şekil
-      ),
-      child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-    ),
-  ),
-),
-
+        Positioned(
+          top: 40,
+          left: 20,
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+            ),
+          ),
+        ),
       ],
     ),
   );
