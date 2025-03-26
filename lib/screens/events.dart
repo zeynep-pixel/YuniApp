@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:yu_app/models/event.dart';
 import 'package:yu_app/screens/event_details.dart';
 import 'package:yu_app/widgets/event_item.dart';
@@ -14,7 +13,7 @@ class Events extends StatefulWidget {
 
 class _EventsState extends State<Events> {
   List<Event> pastEvents = [];
-  List<Event> latesEvents = []; // Geçmiş etkinlikler (slayt için)
+  List<Event> latesEvents = []; 
   List<Event> data = []; // Tüm etkinlikler (normal liste)
   bool isLoading = true;
 
@@ -100,31 +99,21 @@ class _EventsState extends State<Events> {
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  // Yakın zamandaki etkinlikler için slayt 
-                  if (pastEvents.isNotEmpty) ...[
+                 // öne çıkanlar
+                  if (latesEvents.isNotEmpty) ...[
                     Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Column(
                         children: [
-                          const Text(
-                            "Yakın Zamandaki Etkinlikler",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                        
                           const SizedBox(height: 10),
-                          CarouselSlider(
-                            options: CarouselOptions(
-                              height: 200,
-                              autoPlay: true,
-                              enlargeCenterPage: true,
-                              aspectRatio: 16 / 9,
-                              viewportFraction: 0.8,
-                            ),
-                            items: latesEvents.map((event) {
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: latesEvents.length,
+                            itemBuilder: (context, index) {
+                              final event = latesEvents[index];
                               return GestureDetector(
-                                // 👈 Tıklanabilir hale getirildi
                                 onTap: () {
                                   Navigator.push(
                                     context,
@@ -133,49 +122,55 @@ class _EventsState extends State<Events> {
                                     ),
                                   );
                                 },
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10),
-                                  child: Stack(
-                                    fit: StackFit.expand,
-                                    children: [
-                                      Image.network(
-                                        event.img,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.black.withOpacity(0.6),
-                                              Colors.transparent,
-                                            ],
-                                            begin: Alignment.bottomCenter,
-                                            end: Alignment.topCenter,
+                                child: Card(
+                                  
+                                  margin: const EdgeInsets.symmetric(vertical: 10),
+                                  elevation: 5,
+                                  child: ClipRRect(
+                                  
+                                    child: Stack(
+                                      children: [
+                                        Image.network(
+                                          event.img,
+                                          fit: BoxFit.cover,
+                                          height: 150,
+                                          width: double.infinity,
+                                        ),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.black.withOpacity(0.6),
+                                                Colors.transparent,
+                                              ],
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      Positioned(
-                                        bottom: 10,
-                                        left: 10,
-                                        child: Text(
-                                          event.title,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
+                                        Positioned(
+                                          bottom: 10,
+                                          left: 10,
+                                          child: Text(
+                                            event.title,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
                               );
-                            }).toList(),
+                            },
                           ),
-                          const SizedBox(height: 20),
                         ],
                       ),
                     ),
+                    
                   ],
 
                   // Tüm etkinlikler listesi (Mevcut çalışan kod)
@@ -244,13 +239,11 @@ class _EventsState extends State<Events> {
                                   );
                                 },
                                 child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
+                                  
                                   margin: const EdgeInsets.symmetric(vertical: 10),
                                   elevation: 5,
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(10),
+                                  
                                     child: Stack(
                                       children: [
                                         Image.network(
