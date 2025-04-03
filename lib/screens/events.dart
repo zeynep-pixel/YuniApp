@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:yu_app/models/event.dart';
 import 'package:yu_app/screens/event_details.dart';
+import 'package:yu_app/widgets/category_selector.dart';
 import 'package:yu_app/widgets/event_item.dart';
 
 class Events extends StatefulWidget {
@@ -99,6 +100,8 @@ class _EventsState extends State<Events> {
           : SingleChildScrollView(
               child: Column(
                 children: [
+                  SizedBox(height: 20,),
+                  CategorySelector(),
                  // öne çıkanlar
                   if (latesEvents.isNotEmpty) ...[
                     Padding(
@@ -175,18 +178,9 @@ class _EventsState extends State<Events> {
 
                   // Tüm etkinlikler listesi (Mevcut çalışan kod)
                   if (data.isNotEmpty) ...[
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      child: Text(
-                        "Tüm Etkinlikler",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+                   
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           int crossAxisCount = constraints.maxWidth > 600 ? 2 : 1;

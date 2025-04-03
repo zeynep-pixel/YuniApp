@@ -15,7 +15,7 @@ class BuildInfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color.fromARGB(255, 113, 73, 183), // 📌 Arka plan rengi deepPurple
+      color:  Color(0xFF272D2F), // 📌 Arka plan rengi deepPurple
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
@@ -26,7 +26,7 @@ class BuildInfoCard extends StatelessWidget {
         ),
         subtitle: Text(
           value,
-          style: const TextStyle(fontSize: 14, color: Colors.white70), // 📌 Açıklama rengi beyazın tonu
+          style: const TextStyle(fontSize: 14, color: Colors.white), // 📌 Açıklama rengi beyazın tonu
         ),
       ),
     );

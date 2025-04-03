@@ -27,5 +27,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/2.png  # Logonu buraya koyduysan
+    - assets/images/2.png 
+    - assets/images/default_profile.png
 

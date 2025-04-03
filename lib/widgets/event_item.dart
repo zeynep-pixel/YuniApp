@@ -51,7 +51,7 @@ class EventItem extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.deepPurple.withOpacity(0.1),
+                      color: Color(0xFF272D2F),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -60,7 +60,7 @@ class EventItem extends StatelessWidget {
                       style: Theme.of(context)
                           .textTheme
                           .bodyMedium
-                          ?.copyWith(color: Colors.deepPurple),
+                          ?.copyWith(color: Colors.white),
                     ),
                   ),
                 ],

@@ -2,17 +2,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:yu_app/models/event.dart';
-import 'package:yu_app/widgets/only_name_event_item.dart';
-import 'package:yu_app/widgets/profile_header.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ProfileHeader extends StatefulWidget{
+  const ProfileHeader({super.key});
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  _ProfileHeaderState createState() => _ProfileHeaderState();
+
+
+  
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileHeaderState extends State<ProfileHeader>{
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -71,63 +73,37 @@ pastEvents = events.where((e) => e.startDate.isBefore(now)).toList();
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [Scaffold(
-        
-        body: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                child: Column(
-                  children: [
-                    ProfileHeader(),
-                    const SizedBox(height: 20),
-                    _buildEventSection("Başvurduğum Etkinlikler", upcomingEvents),
-                    _buildEventSection("Katıldığım Etkinlikler", pastEvents),
-                  ],
-                ),
-              ),
+ 
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.amber,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
       ),
-      Positioned(
-          top: 80,
-          left: 20,
-          child: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-            ),
-          ),
-        ),
-
-      ]
-    );
-  }
-
-
-
-  Widget _buildEventSection(String title, List<Event> events) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.only(top: 100, bottom: 20),
+      alignment: Alignment.center,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          CircleAvatar(
+            radius: 50,
+            backgroundImage: profileImage.isNotEmpty
+                ? NetworkImage(profileImage)
+                : const AssetImage("assets/images/default_profile.png") as ImageProvider,
+          ),
           const SizedBox(height: 10),
-          events.isEmpty
-              ? const Center(child: Text("Henüz etkinlik yok", style: TextStyle(color: Colors.grey)))
-              : Column(
-                  children: events.map((event) => OnlyNameEventItem(event: event)).toList(),
-                ),
-          const SizedBox(height: 20),
+          Text(
+            "$name $surname",
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
         ],
       ),
     );
+  
+
   }
+
+  
 }

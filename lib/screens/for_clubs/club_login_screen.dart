@@ -53,63 +53,92 @@ class _ClubLoginScreenState extends State<ClubLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-             Navigator.of(context).pop();
-          },
-        ),
-      ),
-      backgroundColor: Colors.deepPurple,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 170),
-              const Text(
-                'Kulüp Girişi',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+    return Stack(
+      children:[ Scaffold(
+        
+        backgroundColor: Colors.amber,
+        body: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+               
+                  const Text(
+                    'Kulüp Girişi',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  const SizedBox(height: 30),
+                  TextField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'E-posta',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.amber, width: 2.0),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.amber, width: 1.0),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      floatingLabelBehavior: FloatingLabelBehavior.never,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Şifre',
+                      filled: true,
+                      fillColor: Colors.white,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.amber, width: 2.0),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.amber, width: 1.0),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      floatingLabelBehavior: FloatingLabelBehavior.never,
+                    ),
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: _login,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.amber,
+                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    ),
+                    child: const Text('Giriş Yap', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  ),
+                ],
               ),
-              const SizedBox(height: 30),
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'E-posta',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: 'Şifre',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                obscureText: true,
-              ),
-              const SizedBox(height: 30),
-              ElevatedButton(
-                onPressed: _login,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.deepPurple,
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                ),
-                child: const Text('Giriş Yap', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              ),
-            ],
+            ),
           ),
         ),
       ),
+      Positioned(
+          top: 80,
+          left: 20,
+          child: GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.3),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+            ),
+          ),
+        ),]
     );
   }
 }

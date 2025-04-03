@@ -6,7 +6,7 @@ import 'package:yu_app/screens/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  await initializeDateFormatting('tr', null); // 📌 Türkçe tarih desteği
+  await initializeDateFormatting('tr', null); 
 
   runApp(const MyApp());
 }
@@ -19,8 +19,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          primary: Colors.deepPurple,
+          seedColor: Colors.amber,
+          primary: Color.fromARGB(255, 255, 200, 0),
           secondary: const Color(0xFFFFA726),
           onPrimary: Colors.white,
           onSecondary: Colors.black,
@@ -32,15 +32,15 @@ class MyApp extends StatelessWidget {
           onError: Colors.white,
         ),
         textTheme: const TextTheme(
-          headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+          headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFFF4D35E)),
           headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.black),
           bodyMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.normal, color: Colors.black),
         ),
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.transparent,
         appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.deepPurple,
-          foregroundColor: Colors.white,
+          backgroundColor:   Color(0xFFFFC529),
+          foregroundColor: Colors.black,
           elevation: 4,
         ),
       ),
@@ -61,7 +61,7 @@ class GradientBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
-        color: Color.fromARGB(255, 213, 213, 213),
+        color:  Color(0xFFD7D7D7),
       ),
       child: child,
     );

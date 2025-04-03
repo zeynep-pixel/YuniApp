@@ -3,16 +3,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:yu_app/models/event.dart';
 import 'package:yu_app/widgets/only_name_event_item.dart';
-import 'package:yu_app/widgets/profile_header.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ProfileEventSection extends StatefulWidget {
+  final String title; // Dışarıdan alınacak başlık
+  final List<Event> events; // Dışarıdan alınacak etkinlikler
+
+  const ProfileEventSection({super.key, required this.title, required this.events});
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  _ProfileEventSectionState createState() => _ProfileEventSectionState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileEventSectionState extends State<ProfileEventSection> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -58,11 +60,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       }
 
-      DateTime now = DateTime.now().toUtc(); 
-
-upcomingEvents = events.where((e) => e.startDate.isAfter(now)).toList();
-pastEvents = events.where((e) => e.startDate.isBefore(now)).toList();
-
+      DateTime now = DateTime.now().toUtc();
+      upcomingEvents = events.where((e) => e.startDate.isAfter(now)).toList();
+      pastEvents = events.where((e) => e.startDate.isBefore(now)).toList();
 
       setState(() => isLoading = false);
     } catch (e) {
@@ -73,57 +73,18 @@ pastEvents = events.where((e) => e.startDate.isBefore(now)).toList();
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [Scaffold(
-        
-        body: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                child: Column(
-                  children: [
-                    ProfileHeader(),
-                    const SizedBox(height: 20),
-                    _buildEventSection("Başvurduğum Etkinlikler", upcomingEvents),
-                    _buildEventSection("Katıldığım Etkinlikler", pastEvents),
-                  ],
-                ),
-              ),
-      ),
-      Positioned(
-          top: 80,
-          left: 20,
-          child: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-            ),
-          ),
-        ),
-
-      ]
-    );
-  }
-
-
-
-  Widget _buildEventSection(String title, List<Event> events) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          // 'widget' ile title ve events parametrelerine erişim sağlıyoruz
+          Text(widget.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
-          events.isEmpty
+          widget.events.isEmpty
               ? const Center(child: Text("Henüz etkinlik yok", style: TextStyle(color: Colors.grey)))
               : Column(
-                  children: events.map((event) => OnlyNameEventItem(event: event)).toList(),
+                  children: widget.events.map((event) => OnlyNameEventItem(event: event)).toList(),
                 ),
           const SizedBox(height: 20),
         ],
