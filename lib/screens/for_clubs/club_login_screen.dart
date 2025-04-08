@@ -56,7 +56,7 @@ class _ClubLoginScreenState extends State<ClubLoginScreen> {
     return Stack(
       children:[ Scaffold(
         
-        backgroundColor: Colors.amber,
+        backgroundColor: Colors.deepPurple,
         body: Center(
           child: SingleChildScrollView(
             child: Padding(
@@ -77,11 +77,11 @@ class _ClubLoginScreenState extends State<ClubLoginScreen> {
                       fillColor: Colors.white,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.amber, width: 2.0),
+                        borderSide: BorderSide(color: Colors.deepPurple, width: 2.0),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.amber, width: 1.0),
+                        borderSide: BorderSide(color: Colors.deepPurple, width: 1.0),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -96,11 +96,11 @@ class _ClubLoginScreenState extends State<ClubLoginScreen> {
                       fillColor: Colors.white,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.amber, width: 2.0),
+                        borderSide: BorderSide(color: Colors.deepPurple, width: 2.0),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.amber, width: 1.0),
+                        borderSide: BorderSide(color: Colors.deepPurple, width: 1.0),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       floatingLabelBehavior: FloatingLabelBehavior.never,
@@ -112,7 +112,7 @@ class _ClubLoginScreenState extends State<ClubLoginScreen> {
                     onPressed: _login,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: Colors.amber,
+                      foregroundColor: Colors.deepPurple,
                       padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                     ),
                     child: const Text('Giriş Yap', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),

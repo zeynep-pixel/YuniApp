@@ -22,9 +22,9 @@ class OnlyNameEventItem extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12), // Hafif boşluk
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20), 
         decoration: BoxDecoration(
-          color: Color(0xFFF4D35E), // Beyaz arka plan
+          color: Colors.deepPurple, // Beyaz arka plan
           borderRadius: BorderRadius.circular(10),
-          // Mor çerçeve
+        
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),

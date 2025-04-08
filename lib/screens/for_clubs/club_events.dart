@@ -43,7 +43,9 @@ class _ClubEventsState extends State<ClubEvents> {
   place: eventData['place'] ?? '',
   isActive: eventData['isActive'] ?? false,
   startDate: (eventData['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
-  finishDate: (eventData['finishDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+  finishDate: (eventData['finishDate'] as Timestamp?)?.toDate() ?? DateTime.now(), 
+  categories: List<String>.from(eventData['categories'] ?? []),
+  likesCounter: eventData['likesCounter'] ?? 0,
 );
 
       }).toList();

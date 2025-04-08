@@ -89,7 +89,7 @@ void _showErrorDialog(String message) {
    
 
     return Scaffold(
-      backgroundColor: Colors.amber,
+      backgroundColor: Colors.deepPurple,
       body: Stack(
         children: [
           Center(
@@ -128,7 +128,7 @@ void _showErrorDialog(String message) {
                             onPressed: _signUp ,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
-                              foregroundColor: Colors.amber,
+                              foregroundColor: Colors.deepPurple,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 50,
                                 vertical: 15,
@@ -186,14 +186,14 @@ void _showErrorDialog(String message) {
                         floatingLabelBehavior: FloatingLabelBehavior.never,
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.amber,
+                            color: Colors.deepPurple,
                             width: 2.0,
                           ),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.amber,
+                            color: Colors.deepPurple,
                             width: 1.0,
                           ),
                           borderRadius: BorderRadius.circular(10),
@@ -217,14 +217,14 @@ void _showErrorDialog(String message) {
                         floatingLabelBehavior: FloatingLabelBehavior.never,
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.amber,
+                            color: Colors.deepPurple,
                             width: 2.0,
                           ),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.amber,
+                            color: Colors.deepPurple,
                             width: 1.0,
                           ),
                           borderRadius: BorderRadius.circular(10),

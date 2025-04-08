@@ -50,7 +50,7 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.amber,
+      backgroundColor: Colors.deepPurple,
       body: Stack(
         children: [
           Center(
@@ -81,14 +81,14 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
                         floatingLabelBehavior: FloatingLabelBehavior.never,
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.amber,
+                            color: Colors.deepPurple,
                             width: 2.0,
                           ),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.amber,
+                            color: Colors.deepPurple,
                             width: 1.0,
                           ),
                           borderRadius: BorderRadius.circular(10),
@@ -108,14 +108,14 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
                         floatingLabelBehavior: FloatingLabelBehavior.never,
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.amber,
+                            color: Colors.deepPurple,
                             width: 2.0,
                           ),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(
-                            color: Colors.amber,
+                            color: Colors.deepPurple,
                             width: 1.0,
                           ),
                           borderRadius: BorderRadius.circular(10),
@@ -128,7 +128,7 @@ class _UserLoginScreenState extends State<UserLoginScreen> {
                       onPressed: _login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
-                        foregroundColor: Colors.amber,
+                        foregroundColor: Colors.deepPurple,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 50,
                           vertical: 15,

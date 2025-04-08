@@ -21,6 +21,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String profileImage = "";
   List<Event> upcomingEvents = [];
   List<Event> pastEvents = [];
+  List<Event> savedEvents = [];
   bool isLoading = true;
 
   @override
@@ -36,14 +37,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final userDoc = await _firestore.collection("users").doc(user.uid).get();
       if (!userDoc.exists) return;
+      
+      List<String> appliedEventIds = List<String>.from(userDoc.data()?['appliedEvents'] ?? []);
+      List<Event> _savedEvents =userDoc.data()?['savedEvents'] ?? [];
 
       setState(() {
         name = userDoc["name"] ?? "";
         surname = userDoc["surname"] ?? "";
         profileImage = userDoc["profileImage"] ?? "";
+        savedEvents =_savedEvents;
       });
 
-      List<String> appliedEventIds = List<String>.from(userDoc.data()?['appliedEvents'] ?? []);
+      
 
       if (appliedEventIds.isEmpty) {
         setState(() => isLoading = false);
@@ -85,6 +90,7 @@ pastEvents = events.where((e) => e.startDate.isBefore(now)).toList();
                     const SizedBox(height: 20),
                     _buildEventSection("Başvurduğum Etkinlikler", upcomingEvents),
                     _buildEventSection("Katıldığım Etkinlikler", pastEvents),
+                    _buildEventSection("Kaydettiğim Etkinlikler", savedEvents)
                   ],
                 ),
               ),

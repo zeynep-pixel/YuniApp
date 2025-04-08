@@ -10,7 +10,7 @@ class AuthSelectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       
-      backgroundColor: Colors.amber,
+      backgroundColor: Colors.deepPurple,
       body: Stack(
         children: [
 

@@ -2,14 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class CategorySelector extends StatefulWidget {
-  const CategorySelector({super.key});
+  final Function(List<String>) onCategoryChanged ;
+  const CategorySelector({super.key, required this.onCategoryChanged});
 
   @override
   _CategorySelectorState createState() => _CategorySelectorState();
 }
 
 class _CategorySelectorState extends State<CategorySelector> {
-  List<String> _selectedCategoryIds = []; // Seçilen kategorilerin ID'lerini tutan liste
+  final List<String> _selectedCategoryIds = []; // Seçilen kategorilerin ID'lerini tutan liste
 
   Future<List<Map<String, dynamic>>> _fetchCategories() async {
     // Firestore'dan kategorileri çek
@@ -57,7 +58,7 @@ class _CategorySelectorState extends State<CategorySelector> {
                         _selectedCategoryIds.add(category['id']); 
                       }
                     });
-                    print("Seçilen Kategoriler: $_selectedCategoryIds");
+                    widget.onCategoryChanged(_selectedCategoryIds);
                   },
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 4.0),

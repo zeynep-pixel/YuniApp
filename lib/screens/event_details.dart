@@ -5,7 +5,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yu_app/models/event.dart';
 import 'package:intl/intl.dart';
-import 'package:yu_app/widgets/build_info_card.dart'; 
+import 'package:yu_app/widgets/build_info_card.dart';
+import 'package:yu_app/widgets/comment_section.dart';
+import 'package:yu_app/widgets/like_button.dart';
+import 'package:yu_app/widgets/save_button.dart'; 
 
 class EventDetails extends ConsumerStatefulWidget {
   final Event event;
@@ -105,7 +108,8 @@ class _EventDetailsState extends ConsumerState<EventDetails> {
 Widget build(BuildContext context) {
   final dateFormat = DateFormat('dd MMMM yyyy - HH:mm', 'tr');
   DateTime now = DateTime.now();
-  bool isEventOver = widget.event.finishDate.isBefore(now); // Etkinlik bitmiş mi?
+  bool isEventOver = widget.event.finishDate.isBefore(now); 
+  
   
   
   return Scaffold(
@@ -207,50 +211,82 @@ Widget build(BuildContext context) {
     bool isUserValid = snapshot.data ?? false; // Kullanıcı doğrulandı mı?
 
     return isUserValid
-        ? (isEventOver
-            ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Text(
-                    'Bu etkinlik sona erdi!',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blueAccent,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+    ? (isEventOver
+        ? Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blueAccent.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Text(
+                'Bu etkinlik sona erdi!',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueAccent,
                 ),
-              )
-            : (isApplied == null
-                ? const CircularProgressIndicator()
-                : ElevatedButton.icon(
-                    onPressed: isApplied! ? null : applyToEvent,
-                    icon: const Icon(Icons.check, color: Colors.white),
-                    label: Text(
-                      isApplied! ? 'Başvuru Tamamlandı' : 'Başvur',
-                      style: const TextStyle(fontSize: 18, color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          )
+        : (isApplied == null
+            ? const CircularProgressIndicator()
+            : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Başvuru butonu
+                    ElevatedButton.icon(
+                      onPressed: isApplied! ? null : applyToEvent,
+                      icon: const Icon(Icons.check, color: Colors.white),
+                      label: Text(
+                        isApplied! ? 'Başvuru Tamamlandı' : 'Başvur',
+                        style: const TextStyle(fontSize: 18, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isApplied! ? Colors.grey : Colors.deepPurple,
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                      ),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isApplied! ? Colors.grey : Colors.deepPurple,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+
+                    const SizedBox(height: 20),
+
+                    // Yorumlar
+                    SizedBox(
+                      height: 300, // İstediğin kadar alan verebilirsin
+                      child: CommentSection(eventId: widget.event.firestoreId),
                     ),
-                  )))
-        : const SizedBox(); // Kullanıcı yoksa hiçbir şey gösterme
+
+                    const SizedBox(height: 10),
+
+                    // Diğer butonlar
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        SaveButton(eventId: widget.event.firestoreId),
+                        LikeButton(eventId: widget.event.firestoreId),
+                      ],
+                    )
+                  ],
+                ),
+              )))
+    : const SizedBox();
+// Kullanıcı yoksa hiçbir şey gösterme
   },
 ),
 
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
+              
+                 
             ],
           ),
         ),
-
+    
+      
         // 🔥 Geri Butonu
         Positioned(
           top: 40,

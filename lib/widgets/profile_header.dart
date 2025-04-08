@@ -80,7 +80,7 @@ pastEvents = events.where((e) => e.startDate.isBefore(now)).toList();
  
     return Container(
       decoration: const BoxDecoration(
-        color: Colors.amber,
+        color: Colors.deepPurple,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
       ),
       padding: const EdgeInsets.only(top: 100, bottom: 20),

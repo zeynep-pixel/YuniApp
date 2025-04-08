@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:yu_app/screens/home_screen.dart';
+import 'package:yu_app/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.amber,
+          seedColor: Colors.deepPurple,
           primary: Color.fromARGB(255, 255, 200, 0),
           secondary: const Color(0xFFFFA726),
           onPrimary: Colors.white,
@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         scaffoldBackgroundColor: Colors.transparent,
         appBarTheme: const AppBarTheme(
-          backgroundColor:   Color(0xFFFFC529),
+          backgroundColor:   Colors.deepPurple,
           foregroundColor: Colors.black,
           elevation: 4,
         ),
@@ -68,64 +68,3 @@ class GradientBackground extends StatelessWidget {
   }
 }
 
-// **🔥 Splash Screen - Açılış Ekranı**
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
-  @override
-  _SplashScreenState createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    
-    // **Animasyon Ayarları**
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2), // 2 saniyede fade in
-    );
-
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut, // Yumuşak giriş çıkış efekti
-    );
-
-    _controller.forward();
-
-    // **3 saniye sonra HomeScreen'e yönlendir**
-    Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: FadeTransition(
-          opacity: _animation,
-          child: Image.asset(
-            'assets/images/2.png', // **Logonu buraya ekle!**
-            width:400,
-            height: 400,
-          ),
-        ),
-      ),
-    );
-  }
-}

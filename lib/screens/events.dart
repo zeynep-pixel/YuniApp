@@ -16,6 +16,7 @@ class _EventsState extends State<Events> {
   List<Event> pastEvents = [];
   List<Event> latesEvents = []; 
   List<Event> data = []; // Tüm etkinlikler (normal liste)
+  List<String> _selectedCategories = [];
   bool isLoading = true;
 
   @override
@@ -24,7 +25,7 @@ class _EventsState extends State<Events> {
     loadItems();
   }
 
-  Future<void> loadItems() async {
+ Future<void> loadItems() async {
   try {
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('all-events').get();
@@ -56,6 +57,8 @@ class _EventsState extends State<Events> {
           finishDate: eventData['finishdate'] is Timestamp
               ? (eventData['finishdate'] as Timestamp).toDate().toLocal()
               : DateTime.now(),
+          categories: List<String>.from(eventData['categories'] ?? []),
+          likesCounter:  eventData['likesCounter'] ?? 0
         );
       }).toList());
 
@@ -63,12 +66,24 @@ class _EventsState extends State<Events> {
       DateTime sevenDaysLater = now.add(const Duration(days: 7));
 
       setState(() {
-        latesEvents = loadedItems
-            .where((event) =>
-                event.startDate.isAfter(now) && event.startDate.isBefore(sevenDaysLater))
-            .toList();
-        data = loadedItems;
+     
+        if (_selectedCategories.isEmpty) {
+          data = loadedItems; 
+          print('aa');
+        } else {
+          data = loadedItems.where((event) {
+            return event.categories.any((categoryId) => _selectedCategories.contains(categoryId));
+          }).toList();
+        }
+
+        
         pastEvents = loadedItems.where((event) => event.startDate.isBefore(now)).toList();
+
+   
+        latesEvents = loadedItems.where((event) {
+          return event.startDate.isAfter(now) && event.startDate.isBefore(sevenDaysLater);
+        }).toList();
+
         isLoading = false;
       });
     } else {
@@ -92,6 +107,7 @@ class _EventsState extends State<Events> {
   }
 }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,7 +117,15 @@ class _EventsState extends State<Events> {
               child: Column(
                 children: [
                   SizedBox(height: 20,),
-                  CategorySelector(),
+                  CategorySelector(onCategoryChanged: (selectedCategories){
+                    setState(() {
+                      this._selectedCategories = (selectedCategories);
+                    });
+                    
+                     loadItems(); 
+                    
+
+                  },),
                  // öne çıkanlar
                   if (latesEvents.isNotEmpty) ...[
                     Padding(
@@ -176,7 +200,7 @@ class _EventsState extends State<Events> {
                     
                   ],
 
-                  // Tüm etkinlikler listesi (Mevcut çalışan kod)
+                  // Tümü
                   if (data.isNotEmpty) ...[
                    
                     Padding(
@@ -203,7 +227,7 @@ class _EventsState extends State<Events> {
                     ),
                   ],
 
-                  // Geçmiş etkinlikler listesi (Kartlar halinde)
+                  // geçmiş
                   if (pastEvents.isNotEmpty) ...[
                     Padding(
                       padding: const EdgeInsets.all(10.0),

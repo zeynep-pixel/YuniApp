@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("YuniApp")),
       drawer: Drawer(
-        backgroundColor: Color(0xFFFFC529),
+        backgroundColor: Colors.deepPurple,
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -27,7 +27,7 @@ class HomeScreen extends StatelessWidget {
             Container(
               height: 80,
               decoration: const BoxDecoration(
-                color: Color(0xFFFFC529),
+                color: Colors.deepPurple,
               ),
               child: const Center(
                 child: Text(
