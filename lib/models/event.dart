@@ -31,7 +31,7 @@ class Event {
     final data = doc.data();
 
     if (data == null) {
-      throw Exception("❌ Firestore'dan veri çekilemedi! (Döküman ID: ${doc.id})");
+      throw Exception();
     }
 
    

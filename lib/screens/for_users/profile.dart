@@ -39,7 +39,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!userDoc.exists) return;
       
       List<String> appliedEventIds = List<String>.from(userDoc.data()?['appliedEvents'] ?? []);
-      List<Event> _savedEvents =userDoc.data()?['savedEvents'] ?? [];
+      List<String> savedEventIds = List<String>.from(userDoc.data()?['savedEvents'] ?? []);
+      
+      List<Event> _savedEvents = [];
+      for (String eventId in savedEventIds) {
+        final eventDoc = await _firestore.collection('all-events').doc(eventId).get();
+        if (eventDoc.exists) {
+          _savedEvents.add(await Event.fromFirestore(eventDoc));
+        }
+      }
+
+    
 
       setState(() {
         name = userDoc["name"] ?? "";
@@ -62,6 +72,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           events.add(await Event.fromFirestore(eventDoc));
         }
       }
+
+      
+      
+   
 
       DateTime now = DateTime.now().toUtc(); 
 

@@ -34,7 +34,6 @@ class _EventsState extends State<Events> {
       List<Event> loadedItems = await Future.wait(snapshot.docs.map((doc) async {
         final eventData = doc.data() as Map<String, dynamic>? ?? {};
 
-        // Kulüp adını çek
         String clubName = "Bilinmeyen Kulüp";
         if (eventData['clup'] != null && eventData['clup'].toString().isNotEmpty) {
           final clubDoc = await FirebaseFirestore.instance.collection('clups').doc(eventData['clup']).get();

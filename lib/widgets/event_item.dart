@@ -51,7 +51,7 @@ class EventItem extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Color(0xFF272D2F),
+                      color:const Color.fromARGB(255, 61, 35, 108),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
